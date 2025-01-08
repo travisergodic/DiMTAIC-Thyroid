@@ -1,0 +1,32 @@
+TRANSFORM:
+  TRAIN:
+    img_size: [512, 512]
+    crop_ratio: 0.9
+    h_flip: 0.3
+    v_flip: 0.3
+  TEST:
+    img_size: [512, 512]
+
+MODEL:
+  type: segformer
+  backbone: MiT-B2
+  num_classes: 1
+
+OPTIMIZER:
+  type: Adam
+
+LOSS:
+  type: tvMF_Mix # Mix
+  batch: true
+  kappa: 8
+
+METRICS: 
+  - type: Dice
+  - type: Accuracy
+  # - type: F1
+  # - type: IOU
+
+HOOKS: []
+  # - type: ema_hook
+  #   save_freq: 1
+  #   decay: 0.995

@@ -1,0 +1,59 @@
+TRANSFORM:
+  TRAIN:
+    img_size: [512, 512] # 352
+    aug: 
+      - type: perspective
+        prob: 0.3
+        distortion_scale: 0.1
+      - type: hflip
+        prob: 0.3
+      - type: vflip
+        prob: 0.3
+  TEST:
+    img_size: [512, 512]
+
+  INFERENCE:
+    img_size: [512, 512]
+
+  CROP_ROI: True
+  CROP_THYROID_PROB: 0.1
+  CROP_THYROID_SIZE: 352
+
+MODEL:
+  type: emcad
+  encoder: pvt_v2_b2
+  num_classes: 1
+
+OPTIMIZER:
+  type: AdamW
+  weight_decay: 0.0001
+  params: 
+    type: same_lr
+    # type: emcad_layer_decay_lr
+    # layer_decay: 0.75
+
+LOSS:
+  type: MultiScale
+  supervision: mutation
+  loss_type: Mix
+  weights: [0.3, 0.7]
+  batch: True
+
+METRICS: 
+  - type: Dice
+  - type: Accuracy
+
+HOOKS:
+  - type: seg_multiscale_hook
+    scales: [448, 480, 512, 544, 576]
+  - type: epoch_scheduler_hook
+    scheduler_type: timm.scheduler.multistep_lr.MultiStepLRScheduler
+    warmup_t: 5
+    decay_t: [40]
+    decay_rate: 0.3
+
+TTA:
+  type: multiscale
+  scales: [480, 512, 544]
+  task: seg
+  agg: mean

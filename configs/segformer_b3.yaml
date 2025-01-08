@@ -1,0 +1,26 @@
+TRANSFORM:
+  TRAIN:
+    img_size: [512, 512]
+    crop_ratio: 0.9
+    h_flip: 0.3
+    v_flip: 0.3
+  TEST:
+    img_size: [512, 512]
+
+MODEL:
+  type: segformer
+  backbone: MiT-B3
+  num_classes: 1
+
+OPTIMIZER:
+  type: Adam
+
+LOSS:
+  type: Mix
+  batch: true
+
+METRICS: 
+  - type: Dice
+  - type: Accuracy
+  # - type: F1
+  # - type: IOU

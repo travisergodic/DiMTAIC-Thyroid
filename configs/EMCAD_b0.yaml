@@ -1,0 +1,26 @@
+TRANSFORM:
+  TRAIN:
+    img_size: [512, 512] # 352
+    crop_ratio: 0.9
+    h_flip: 0.3
+    v_flip: 0.3
+  TEST:
+    img_size: [512, 512]
+
+MODEL:
+  type: emcad
+  encoder: pvt_v2_b0
+  num_classes: 1
+
+OPTIMIZER:
+  type: Adam
+
+LOSS:
+  type: MultiScale
+  supervision: mutation
+
+METRICS: 
+  - type: Dice
+  - type: Accuracy
+  # - type: F1
+  # - type: IOU

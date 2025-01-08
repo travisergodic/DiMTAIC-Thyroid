@@ -1,0 +1,62 @@
+
+
+TRANSFORM:
+  TRAIN:
+    img_size: [352, 352] # 352
+    aug: 
+      - type: random_cutout
+        cutout_prob: 0.25
+      - type: perspective
+        prob: 0.2
+        distortion_scale: 0.1
+      - type: hflip
+        prob: 0.3
+      - type: vflip
+        prob: 0.3
+  TEST:
+    img_size: [352, 352]
+    
+  INFERENCE:
+    img_size: [512, 512]
+
+  CROP_ROI: True
+  CROP_THYROID_PROB: 0.2
+  CROP_THYROID_SIZE: 352
+
+
+MODEL:
+  type: pvt_b2
+  cls: true
+  dropout_rate: 0
+  num_classes: 1
+
+OPTIMIZER:
+  type: AdamW
+  weight_decay: 0.0001 # 0.0001
+  params: 
+    type: same_lr
+
+HOOKS:
+  - type: epoch_scheduler_hook
+    scheduler_type: timm.scheduler.multistep_lr.MultiStepLRScheduler
+    warmup_t: 4
+    decay_t: [100]
+    decay_rate: 0.3
+
+  - type: cls_multiscale_hook
+    scales: [320, 352, 384] # [352, 384, 416, 448, 480, 512]
+
+LOSS:
+  type: BCEWithLogitsLoss
+
+METRICS: 
+  - type: Accuracy
+  - type: F1
+  - type: AUC
+
+TTA:
+  type: cls_multipatch
+  patch_size: 352
+  stride: 160
+  img_size: 352
+  agg: max

@@ -1,0 +1,66 @@
+TRANSFORM:
+  TRAIN:
+    img_size: [512, 512] # 352
+    crop_roi: True
+    aug: 
+      - type: perspective
+        prob: 0.3
+        distortion_scale: 0.1
+      # - type: random_crop
+      #   crop_ratio: 0.95
+      - type: hflip
+        prob: 0.3
+      - type: vflip
+        prob: 0.3
+  TEST:
+    img_size: [512, 512]
+    crop_roi: True
+
+MODEL:
+  type: pvt_cascade
+  num_classes: 1
+
+OPTIMIZER:
+  type: AdamW
+  weight_decay: 0.0001
+  params: 
+    type: same_lr
+    # type: emcad_layer_decay_lr
+    # layer_decay: 0.75
+
+LOSS:
+  type: MultiScale
+  supervision: mutation
+  loss_type: Mix
+  weights: [0.3, 0.7]
+  batch: True
+
+METRICS: 
+  - type: Dice
+  - type: Accuracy
+  # - type: F1
+  # - type: IOU
+
+HOOKS:
+  - type: seg_multiscale_hook
+    scales: [448, 480, 512, 544, 576]
+  - type: epoch_scheduler_hook
+    scheduler_type: timm.scheduler.multistep_lr.MultiStepLRScheduler
+    warmup_t: 5
+    decay_t: [40]
+    decay_rate: 0.3
+
+  # - type: epoch_scheduler_hook
+  #   scheduler_type: torch.optim.lr_scheduler.StepLR
+  #   step_size: 40
+  #   gamma: 0.3
+
+  # - type: ema_hook
+  #   save_freq: 1
+  #   decay: 0.997
+
+TTA:
+  type: multiscale
+  scales: [480, 512, 544]
+  threshold: 0.5
+  task: seg
